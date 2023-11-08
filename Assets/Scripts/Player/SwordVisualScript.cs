@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +6,8 @@ using UnityEngine;
 
 public class SwordVisualScript : MonoBehaviour
 {
+    public event EventHandler OnAttackAnimationStart;
+    public event EventHandler OnAttackAnimationEnd;
     Animator animator;
     InputManager inputManager;
     bool isLastAttackRight = false;
@@ -34,11 +37,12 @@ public class SwordVisualScript : MonoBehaviour
     void Update() {
         switch (attackState) {
             case AttackState.IDLE:
-                if(inputManager.IsGetAttack() && canAttack){
+                if(inputManager.JustAttack && canAttack){
                     canAttack = false;
                     animator.SetBool(DO_ATTACK,true);
                     isLastAttackRight = !isLastAttackRight;
                     animator.SetBool(RIGHT_ATTACK,isLastAttackRight);
+                    OnAttackAnimationStart?.Invoke(this,EventArgs.Empty);
                     attackState = AttackState.ATTACKING;
                 }
                 break;
@@ -49,21 +53,24 @@ public class SwordVisualScript : MonoBehaviour
                     attackColdownCounter = 0;
                     attackState = AttackState.WAIT_FOR_CONNECT_ATTACK;
                     canAttack = true;
+                    OnAttackAnimationEnd?.Invoke(this,EventArgs.Empty);
                 }
                 break;
             case AttackState.WAIT_FOR_CONNECT_ATTACK:
                 waitConnectAttackCounter += Time.deltaTime;
-                if(inputManager.IsGetAttack() && canAttack){
+                if(inputManager.JustAttack && canAttack){
                     canAttack = false;
                     animator.SetBool(DO_ATTACK,true);
                     isLastAttackRight = !isLastAttackRight;
                     animator.SetBool(RIGHT_ATTACK,true);
+                    attackState = AttackState.ATTACKING;
+                    OnAttackAnimationStart?.Invoke(this,EventArgs.Empty);
                 }
                 if(waitConnectAttackCounter >= waitConnectAttack){
                     waitConnectAttackCounter = 0;
-                    attackState = AttackState.RECOVER_ATTACK;
                     isLastAttackRight = false;
                     animator.SetBool(RECOVER_ATTACK,true);
+                    attackState = AttackState.RECOVER_ATTACK;
                 }
                 break;
             case AttackState.RECOVER_ATTACK:

@@ -6,7 +6,10 @@ public class EasyLayerMask
 {
     public int Value {get; private set; }
     public static EasyLayerMask I {get;} = new();
-
+    public static int Named(string layerName){
+        int layerMask = LayerMask.NameToLayer(layerName);
+        return 1 << layerMask;
+    }
     public EasyLayerMask HitAll(){
         Value = ~0;
         return this;
@@ -14,7 +17,7 @@ public class EasyLayerMask
 
     public EasyLayerMask HitOnly(string layerName){
         int layerMask = LayerMask.NameToLayer(layerName);
-        Value = (1 << layerMask);
+        Value = 1 << layerMask;
         return this;
     }
     public EasyLayerMask HitAllExcept(string layerName){
@@ -23,7 +26,7 @@ public class EasyLayerMask
         return this;
     }
     public EasyLayerMask And(string layerName){
-        int addLayerMask = EasyLayerMask.I.HitOnly(layerName).Value;
+        int addLayerMask = I.HitOnly(layerName).Value;
         Value = Value | addLayerMask;
         return this;
     }

@@ -5,18 +5,26 @@ using UnityEngine;
 public class PlayerVisual : MonoBehaviour
 {
     [SerializeField] float rotateSpeed;
-    // Update is called once per frame
+    Player player;
+    void Start() {
+        player = Player.Instance;
+    }
+
     void Update()
     {
+        FollowCursor();   
+    }
+    void FollowCursor(){
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         bool hit = Physics.Raycast(
             ray : ray,
             hitInfo : out RaycastHit hitInfo,
             layerMask : EasyLayerMask.I.HitOnly("Ground").Value,
-            maxDistance : 100
+            maxDistance : float.MaxValue
         );
         if (hit) {
-            transform.forward = hitInfo.point;
+            Vector3 faceToWard = new Vector3(hitInfo.point.x,transform.forward.y,hitInfo.point.z);
+            player.transform.forward =  faceToWard - player.transform.position ;
         }
     }
 }

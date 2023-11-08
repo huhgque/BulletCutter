@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyProjectile : MonoBehaviour
 {
+    public bool IsParried = false;
     [SerializeField] float moveSpeed;
     [SerializeField] int damage;
     public Vector3 origin {set; private get;} 
@@ -13,7 +14,7 @@ public class EnemyProjectile : MonoBehaviour
     {
 
         EasyLayerMask layerMask = new();
-        layerMask.HitOnly("Player").And("Wall"); 
+        layerMask.HitOnly("Player").And("Wall");
         RaycastHit raycastHit; 
         bool didHit = Physics.Raycast(
             origin : transform.position,
@@ -21,7 +22,7 @@ public class EnemyProjectile : MonoBehaviour
             maxDistance : Time.deltaTime * moveSpeed , 
             layerMask: layerMask.Value,
             hitInfo : out raycastHit);
-        if (didHit){
+        if (didHit){    
             Player player = raycastHit.transform?.GetComponent<Player>();
             if (player) player.TakeDamage(damage); 
             Destroy(gameObject);
